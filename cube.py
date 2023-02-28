@@ -34,7 +34,7 @@ def apply_face_rotation(cubelets, movement):
             down=''.join((r6, r7, d2, d3, d4, d5, d6, r5, d8)),
             left=''.join((l0, d7, d0, d1, l4, l5, l6, l7, l8)),
             right=''.join((r0, r1, r2, r3, r4, t3, t4, t5, r8)),
-        ) 
+        )
     elif face == 'back':
         return Cubelets(
             front=c.front,
@@ -81,52 +81,52 @@ def apply_face_rotation(cubelets, movement):
             right=''.join((r6, r7, r0, r1, r2, r3, r4, r5, r8)),
         )
 
-def apply_cube_rotation(cubelets, cube_movement): 
+def apply_cube_rotation(cubelets, cube_movement):
     axis = cube_movement.axis
     assert axis in AXES
-    (f0, f1, f2, f3, f4, f5, f6, f7, f8) = getattr(c, 'front')
-    (b0, b1, b2, b3, b4, b5, b6, b7, b8) = getattr(c, 'back')
-    (t0, t1, t2, t3, t4, t5, t6, t7, t8) = getattr(c, 'top')
-    (d0, d1, d2, d3, d4, d5, d6, d7, d8) = getattr(c, 'down')
-    (l0, l1, l2, l3, l4, l5, l6, l7, l8) = getattr(c, 'left')
-    (r0, r1, r2, r3, r4, r5, r6, r7, r8) = getattr(c, 'right')
+    (f0, f1, f2, f3, f4, f5, f6, f7, f8) = getattr(cubelets, 'front')
+    (b0, b1, b2, b3, b4, b5, b6, b7, b8) = getattr(cubelets, 'back')
+    (t0, t1, t2, t3, t4, t5, t6, t7, t8) = getattr(cubelets, 'top')
+    (d0, d1, d2, d3, d4, d5, d6, d7, d8) = getattr(cubelets, 'down')
+    (l0, l1, l2, l3, l4, l5, l6, l7, l8) = getattr(cubelets, 'left')
+    (r0, r1, r2, r3, r4, r5, r6, r7, r8) = getattr(cubelets, 'right')
     if axis == 'x':
         return Cubelets(
             front=cubelets.down,
-            back=cubelets.top,
+            back=''.join((t4, t5, t6, t7, t0, t1, t2, t3, t8)),
             top=cubelets.front,
-            down=cubelets.back,
-            left=cubelets.left,
-            right=cubelets.right,
+            down=''.join((b4, b5, b6, b7, b0, b1, b2, b3, b8)),
+            left=''.join((l2, l3, l4, l5, l6, l7, l0, l1, l8)),
+            right=''.join((r6, r7, r0, r1, r2, r3, r4, r5, r8)),
         )
     elif axis == 'y':
         return Cubelets(
-            front=cubelets.front,
-            back=cubelets.back,
-            top=cubelets.left,
-            down=cubelets.right,
-            left=cubelets.down,
-            right=cubelets.top,
+            front=''.join((f6, f7, f0, f1, f2, f3, f4, f5, f8)),
+            back=''.join((b6, b7, b0, b1, b2, b3, b4, b5, b8)),
+            top=''.join((l6, l7, l0, l1, l2, l3, l4, l5, l8)),
+            down=''.join((r6, r7, r0, r1, r2, r3, r4, r5, r8)),
+            left=''.join((d6, d7, d0, d1, d2, d3, d4, d5, d8)),
+            right=''.join((t6, t7, t0, t1, t2, t3, t4, t5, t8)),
         )
     elif axis == 'z':
         return Cubelets(
             front=cubelets.right,
             back=cubelets.left,
-            top=cubelets.top,
-            down=cubelets.down,
-            left=cubelets.back,
-            right=cubelets.front,
-        ) 
+            top=''.join((t6, t7, t0, t1, t2, t3, t4, t5, t8)),
+            down=''.join((d6, d7, d0, d1, d2, d3, d4, d5, d8)),
+            left=cubelets.front,
+            right=cubelets.back,
+        )
 
 def create_default_cubelets():
     return Cubelets(
         front=('W' * 9),
-        back=('Y' * 9), 
+        back=('Y' * 9),
         top=('O' * 9),
         down=('R' * 9),
         left=('G' * 9),
         right=('B' * 9),
-    ) 
+    )
 
 class Cube:
 
@@ -170,4 +170,4 @@ class Cube:
             self.movement_callback()
 
     def set_movement_callback(self, movement_callback):
-        self.movement_callback = movement_callback 
+        self.movement_callback = movement_callback
