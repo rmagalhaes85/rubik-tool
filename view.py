@@ -10,6 +10,7 @@ class View():
         root = Tk()
         frm = ttk.Frame(root, padding=10)
         frm.grid()
+        canvas = Canvas(frm, width=200, height=240)
         canvas.grid(column=0, row=0, rowspan=2, pady=5)
         self.canvas = canvas
         self.root = root
