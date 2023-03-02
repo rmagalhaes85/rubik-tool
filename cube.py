@@ -5,28 +5,39 @@ AXES = ['x', 'y', 'z']
 
 Cubelets = namedtuple('Cubelets', FACES)
 
-Movement = namedtuple('Movement', ['face', 'is_prime'])
-
 CubeMovement = namedtuple('CubeMovement', ['axis'])
 
-def apply_face_rotation(cubelets, movement):
-    face = movement.face
-    assert face in FACES
+FaceMovement = namedtuple('FaceMovement', ['face', 'is_prime'])
+
+def parse_face_movement(movement):
+    assert len(movement) == 1 or (len(movement) == 2 and movement[1] == "'")
+    face = movement[0].lower()
+    assert face in [f[0] for f in FACES]
+    is_prime = len(movement) == 2 and movement[1] == "'"
+    return FaceMovement(face=face, is_prime=is_prime)
+
+def parse_cube_movement(movement):
+    assert movement in AXES
+    return CubeMovement(axis=movement)
+
+def apply_face_rotation(cubelets, face_movement):
     c = (
         apply_face_rotation(
-            apply_face_rotation(cubelets, Movement(face=movement.face, is_prime=False)),
-            Movement(face=movement.face, is_prime=False),
+            apply_face_rotation(cubelets,
+                                FaceMovement(face=face_movement.face,
+                                             is_prime=not face_movement.is_prime)),
+            FaceMovement(face=face_movement.face,
+                         is_prime=not face_movement.is_prime)
         )
-        if movement.is_prime
-        else cubelets
-    )
+    ) if face_movement.is_prime else cubelets
+    face = face_movement.face
     (f0, f1, f2, f3, f4, f5, f6, f7, f8) = getattr(c, 'front')
     (b0, b1, b2, b3, b4, b5, b6, b7, b8) = getattr(c, 'back')
     (t0, t1, t2, t3, t4, t5, t6, t7, t8) = getattr(c, 'top')
     (d0, d1, d2, d3, d4, d5, d6, d7, d8) = getattr(c, 'down')
     (l0, l1, l2, l3, l4, l5, l6, l7, l8) = getattr(c, 'left')
     (r0, r1, r2, r3, r4, r5, r6, r7, r8) = getattr(c, 'right')
-    if face == 'front':
+    if face == 'f':
         return Cubelets(
             front=''.join((f6, f7, f0, f1, f2, f3, f4, f5, f8)),
             back=c.back,
@@ -35,7 +46,7 @@ def apply_face_rotation(cubelets, movement):
             left=''.join((l0, d7, d0, d1, l4, l5, l6, l7, l8)),
             right=''.join((r0, r1, r2, r3, r4, t3, t4, t5, r8)),
         )
-    elif face == 'back':
+    elif face == 'b':
         return Cubelets(
             front=c.front,
             back=''.join((b6, b7, b0, b1, b2, b3, b4, b5, b8)),
@@ -44,7 +55,7 @@ def apply_face_rotation(cubelets, movement):
             left=''.join((l0, l1, l2, l3, l4, t7, t0, t1, l8)),
             right=''.join((r0, d3, d4, d5, r4, r5, r6, r7, r8)),
         )
-    elif face == 'top':
+    elif face == 't':
         return Cubelets(
             front=''.join((r0, r1, f2, f3, f4, f5, f6, r7, f8)),
             back=''.join((l0, l1, b2, b3, b4, b5, b6, l7, b8)),
@@ -53,7 +64,7 @@ def apply_face_rotation(cubelets, movement):
             left=''.join((f0, f1, l2, l3, l4, l5, l6, f7, l8)),
             right=''.join((b0, b1, r2, r3, r4, r5, r6, b7, r8)),
         )
-    elif face == 'down':
+    elif face == 'd':
         return Cubelets(
             front=''.join((f0, f1, f2, l3, l4, l5, f6, f7, f8)),
             back=''.join((b0, b1, b2, r3, r4, r5, b6, b7, b8)),
@@ -62,7 +73,7 @@ def apply_face_rotation(cubelets, movement):
             left=''.join((l0, l1, l2, b3, b4, b5, l6, l7, l8)),
             right=''.join((r0, r1, r2, f3, f4, f5, r6, r7, r8)),
         )
-    elif face == 'left':
+    elif face == 'l':
         return Cubelets(
             front=''.join((f0, f1, f2, f3, f4, t5, t6, t7, f8)),
             back=''.join((b0, d5, d6, d7, b4, b5, b6, b7, b8)),
@@ -71,7 +82,7 @@ def apply_face_rotation(cubelets, movement):
             left=''.join((l6, l7, l0, l1, l2, l3, l4, l5, l8)),
             right=c.right,
         )
-    elif face == 'right':
+    elif face == 'r':
         return Cubelets(
             front=''.join((f0, d1, d2, d3, f4, f5, f6, f7, f8)),
             back=''.join((b0, b1, b2, b3, b4, t1, t2, t3, b8)),
@@ -80,9 +91,10 @@ def apply_face_rotation(cubelets, movement):
             left=c.left,
             right=''.join((r6, r7, r0, r1, r2, r3, r4, r5, r8)),
         )
+    raise ValueError(f'Invalid movement {movement=}')
 
-def apply_cube_rotation(cubelets, cube_movement):
-    axis = cube_movement.axis
+def apply_cube_rotation(cubelets, movement):
+    axis = movement.axis
     assert axis in AXES
     (f0, f1, f2, f3, f4, f5, f6, f7, f8) = getattr(cubelets, 'front')
     (b0, b1, b2, b3, b4, b5, b6, b7, b8) = getattr(cubelets, 'back')
@@ -117,6 +129,7 @@ def apply_cube_rotation(cubelets, cube_movement):
             left=cubelets.front,
             right=cubelets.back,
         )
+    return ValueError('Unknown axis {axis=}')
 
 def create_default_cubelets():
     return Cubelets(
@@ -146,24 +159,43 @@ class Cube:
         self.movement_history.clear()
 
     def rotate_face(self, movement, should_store_in_history=True):
-        rotated_cubelets = apply_face_rotation(self.cubelets, movement)
+        face_movement = parse_face_movement(movement)
+        return self.rotate_face_(face_movement, should_store_in_history)
+
+    def rotate_face_(self, face_movement, should_store_in_history=True):
+        rotated_cubelets = apply_face_rotation(self.cubelets, face_movement)
         self.cubelets = rotated_cubelets
         if should_store_in_history:
-            self.movement_history.append(movement)
+            self.movement_history.append(face_movement)
         self.call_movement_callback()
 
-    def rotate_cube(self, axis, is_ccw=False):
-        rotated_cubelets = apply_cube_rotation(self.cubelets, CubeMovement(axis=axis))
+    def rotate_cube(self, axis, is_ccw=False, should_store_in_history=True):
+        cube_movement = parse_cube_movement(axis)
+        return self.rotate_cube_(cube_movement, should_store_in_history)
+
+    def rotate_cube_(self, cube_movement, should_store_in_history):
+        rotated_cubelets = apply_cube_rotation(self.cubelets, cube_movement)
         self.cubelets = rotated_cubelets
+        if should_store_in_history:
+            self.movement_history.append(cube_movement)
         self.call_movement_callback()
 
-    def undo_face_rotation(self):
+    def undo_movement(self):
         if len(self.movement_history) < 1:
             return
-        last_move = self.movement_history.pop()
-        opposite_move = Movement(face=last_move.face,
-                                 is_prime=not last_move.is_prime)
-        self.rotate_face(opposite_move, should_store_in_history=False)
+        last_movement = self.movement_history.pop()
+        assert type(last_movement) in [CubeMovement, FaceMovement]
+        if isinstance(last_movement, FaceMovement):
+            self.rotate_face_(FaceMovement(face=last_movement.face,
+                                           is_prime=not last_movement.is_prime),
+                              should_store_in_history=False)
+        elif isinstance(last_movement, CubeMovement):
+            self.rotate_cube_(CubeMovement(axis=last_movement.axis),
+                              should_store_in_history=False)
+            self.rotate_cube_(CubeMovement(axis=last_movement.axis),
+                              should_store_in_history=False)
+            self.rotate_cube_(CubeMovement(axis=last_movement.axis),
+                              should_store_in_history=False)
 
     def call_movement_callback(self):
         if self.movement_callback:
