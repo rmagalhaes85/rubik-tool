@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-from cube import Movement, CubeMovement
 from painter import CubePainter
 
 class View():
@@ -37,20 +36,18 @@ class View():
         return self.canvas
 
     def create_face_move_buttons(self):
-        self.create_face_move_button("FRONT", 'front', column=0, row=1)
-        self.create_face_move_button("TOP", 'top', column=0, row=2)
-        self.create_face_move_button("DOWN", 'down', column=0, row=3)
-        self.create_face_move_button("LEFT", 'left', column=1, row=1)
-        self.create_face_move_button("RIGHT", 'right', column=1, row=2)
-        self.create_face_move_button("BACK", 'back', column=1, row=3)
+        self.create_face_move_button("FRONT", 'f', column=0, row=1)
+        self.create_face_move_button("TOP", 't', column=0, row=2)
+        self.create_face_move_button("DOWN", 'd', column=0, row=3)
+        self.create_face_move_button("LEFT", 'l', column=1, row=1)
+        self.create_face_move_button("RIGHT", 'r', column=1, row=2)
+        self.create_face_move_button("BACK", 'b', column=1, row=3)
 
     def create_face_move_button(self, text, face, **grid_args):
         ttk.Button(
             self.movement_buttons_frm,
             text=text,
-            command=lambda: self.cube.rotate_face(
-                Movement(face=face, is_prime=False)
-            )
+            command=lambda: self.cube.rotate_face(face)
         ).grid(**grid_args)
 
     def create_cube_rotation_buttons(self):
