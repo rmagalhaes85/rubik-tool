@@ -7,6 +7,7 @@ class View():
     def __init__(self, cube):
         # Initialization
         root = Tk()
+        root.title('Rubik Tool')
         frm = ttk.Frame(root, padding=10)
         frm.grid()
         canvas = Canvas(frm, width=200, height=240)
