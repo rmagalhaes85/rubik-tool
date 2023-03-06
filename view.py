@@ -8,6 +8,7 @@ class View():
         # Initialization
         root = Tk()
         root.title('Rubik Tool')
+        root.resizable(0, 0)
         frm = ttk.Frame(root, padding=10)
         frm.grid()
         canvas = Canvas(frm, width=200, height=240)
