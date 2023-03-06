@@ -146,7 +146,7 @@ class Cube:
     def __init__(self):
         self.movement_callback = None
         self.movement_history = []
-        self.reset()
+        self.reset(should_callback=False)
 
     def initialize_cubelets(self):
         self.cubelets = create_default_cubelets()
@@ -154,9 +154,11 @@ class Cube:
     def get_cubelets(self):
         return self.cubelets
 
-    def reset(self):
+    def reset(self, should_callback=True):
         self.initialize_cubelets()
         self.movement_history.clear()
+        if should_callback:
+            self.call_movement_callback()
 
     def rotate_face(self, movement, should_store_in_history=True):
         face_movement = parse_face_movement(movement)
