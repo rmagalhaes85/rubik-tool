@@ -37,7 +37,7 @@ class View():
 
     def create_face_move_buttons(self):
         self.create_face_move_button("FRONT", 'f', column=0, row=1)
-        self.create_face_move_button("TOP", 't', column=0, row=2)
+        self.create_face_move_button("UP", 'u', column=0, row=2)
         self.create_face_move_button("DOWN", 'd', column=0, row=3)
         self.create_face_move_button("LEFT", 'l', column=1, row=1)
         self.create_face_move_button("RIGHT", 'r', column=1, row=2)
