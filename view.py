@@ -30,7 +30,9 @@ class View():
         # Command Buttons
         commands_frm = ttk.Frame(frm, padding=5)
         commands_frm.grid(column=3, row=0)
+        self.commands_frm = commands_frm
         ttk.Label(commands_frm, text="Commands").grid(row=0, column=0, columnspan=2)
+        self.create_cube_commands_buttons()
 
     def get_canvas_reference(self):
         return self.canvas
@@ -54,6 +56,14 @@ class View():
         self.create_cube_rotation_button("X", 'x', column=0, row=5)
         self.create_cube_rotation_button("Y", 'y', column=0, row=6)
         self.create_cube_rotation_button("Z", 'z', column=0, row=7)
+
+
+    def create_cube_commands_buttons(self):
+        ttk.Button(
+            self.commands_frm,
+            text='RESET',
+            command=lambda: self.cube.reset(),
+        ).grid(column=0, row=1)
 
     def create_cube_rotation_button(self, text, axis, **grid_args):
         ttk.Button(
