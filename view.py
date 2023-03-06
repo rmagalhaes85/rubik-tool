@@ -25,7 +25,7 @@ class View():
         rotations_frm = ttk.Frame(frm, padding=5)
         rotations_frm.grid(column=2, row=0)
         self.rotations_frm = rotations_frm
-        ttk.Label(rotations_frm, text="Cube").grid(row=4, column=0, columnspan=2)
+        ttk.Label(rotations_frm, text="Cube").grid(row=0, column=0, columnspan=2)
         self.create_cube_rotation_buttons()
         # Command Buttons
         commands_frm = ttk.Frame(frm, padding=5)
@@ -53,9 +53,9 @@ class View():
         ).grid(**grid_args)
 
     def create_cube_rotation_buttons(self):
-        self.create_cube_rotation_button("X", 'x', column=0, row=5)
-        self.create_cube_rotation_button("Y", 'y', column=0, row=6)
-        self.create_cube_rotation_button("Z", 'z', column=0, row=7)
+        self.create_cube_rotation_button("X", 'x', column=0, row=1)
+        self.create_cube_rotation_button("Y", 'y', column=0, row=2)
+        self.create_cube_rotation_button("Z", 'z', column=0, row=3)
 
 
     def create_cube_commands_buttons(self):
