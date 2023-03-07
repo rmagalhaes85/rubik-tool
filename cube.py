@@ -1,3 +1,4 @@
+import random
 from collections import namedtuple
 
 FACES = ['front', 'back', 'up', 'down', 'left', 'right']
@@ -181,6 +182,13 @@ class Cube:
         if should_store_in_history:
             self.movement_history.append(cube_movement)
         self.call_movement_callback()
+
+    def shuffle(self):
+        n_moves = 20
+        faces = random.choices([f[0] for f in FACES], k=n_moves)
+        primes = random.choices(["", "'"], k=n_moves)
+        for move_elements in zip(faces, primes):
+            self.rotate_face(''.join(move_elements))
 
     def undo_movement(self):
         if len(self.movement_history) < 1:
