@@ -66,6 +66,11 @@ class View():
             text='RESET',
             command=lambda: self.cube.reset(),
         ).grid(column=0, row=1)
+        ttk.Button(
+            self.commands_frm,
+            text='SHUFFLE',
+            command=lambda: self.cube.shuffle(),
+        ).grid(column=0, row=2)
 
     def create_cube_rotation_button(self, text, axis, **grid_args):
         ttk.Button(
