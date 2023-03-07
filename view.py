@@ -4,7 +4,7 @@ from painter import CubePainter
 
 class View():
 
-    def __init__(self, cube):
+    def __init__(self, cube, controller):
         # Initialization
         root = Tk()
         root.title('Rubik Tool')
@@ -16,6 +16,7 @@ class View():
         self.canvas = canvas
         self.root = root
         self.cube = cube
+        self.controller = controller
         self.painter = CubePainter(cube, canvas)
         # Face movement buttons
         movement_buttons_frm = ttk.Frame(frm, padding=5)
@@ -51,7 +52,7 @@ class View():
         ttk.Button(
             self.movement_buttons_frm,
             text=text,
-            command=lambda: self.cube.rotate_face(face)
+            command=lambda: self.controller.rotate_cube_face(face)
         ).grid(**grid_args)
 
     def create_cube_rotation_buttons(self):
@@ -59,24 +60,38 @@ class View():
         self.create_cube_rotation_button("Y", 'y', column=0, row=2)
         self.create_cube_rotation_button("Z", 'z', column=0, row=3)
 
-
     def create_cube_commands_buttons(self):
         ttk.Button(
             self.commands_frm,
             text='RESET',
-            command=lambda: self.cube.reset(),
+            command=lambda: self.controller.reset_cube(),
         ).grid(column=0, row=1)
         ttk.Button(
             self.commands_frm,
             text='SHUFFLE',
-            command=lambda: self.cube.shuffle(),
+            command=lambda: self.controller.shuffle_cube(),
         ).grid(column=0, row=2)
+        ttk.Button(
+            self.commands_frm,
+            text='SAVE',
+            command=lambda: self.controller.save_game(),
+        ).grid(column=1, row=1)
+        ttk.Button(
+            self.commands_frm,
+            text='SAVE AS...',
+            command=lambda: self.controller.save_game_as(),
+        ).grid(column=1, row=2)
+        ttk.Button(
+            self.commands_frm,
+            text='OPEN...',
+            command=lambda: self.controller.open_game(),
+        ).grid(column=1, row=3)
 
     def create_cube_rotation_button(self, text, axis, **grid_args):
         ttk.Button(
             self.rotations_frm,
             text=text,
-            command=lambda: self.cube.rotate_cube(axis),
+            command=lambda: self.controller.rotate_cube(axis),
         ).grid(**grid_args)
 
     def mainloop(self):
