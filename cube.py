@@ -153,8 +153,10 @@ class Cube:
     def initialize_cubelets(self):
         self.cubelets = create_default_cubelets()
 
-    def get_cubelets(self):
-        return self.cubelets
+    def set_cubelets(self, cubelets, should_callback=True):
+        self.cubelets = cubelets
+        if should_callback:
+            self.call_movement_callback()
 
     def reset(self, should_callback=True):
         self.initialize_cubelets()
@@ -214,9 +216,3 @@ class Cube:
 
     def set_movement_callback(self, movement_callback):
         self.movement_callback = movement_callback
-
-    def get_filename(self):
-        return self.filename
-
-    def set_filename(self, filename):
-        self.filename = filename

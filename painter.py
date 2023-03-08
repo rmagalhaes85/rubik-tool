@@ -110,7 +110,7 @@ class CubePainter:
             tile_position = (
                 left_px, top_px, left_px + width_px, top_px + height_px
             )
-            color = getattr(self.cube.get_cubelets(), r.face)[r.pos]
+            color = getattr(self.cube.cubelets, r.face)[r.pos]
             logging.debug(f'Will render cubelet in position {tile_position=}')
             self.canvas.create_rectangle(
                 *tile_position,
