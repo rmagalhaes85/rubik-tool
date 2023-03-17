@@ -10,6 +10,17 @@ CubeMovement = namedtuple('CubeMovement', ['axis'])
 
 FaceMovement = namedtuple('FaceMovement', ['face', 'is_prime'])
 
+def debug_init():
+    global pp
+    global c
+    from pprint import pprint
+    pp = pprint
+    c = Cube()
+    c.shuffle()
+    #c.rotate_face('F')
+    #c.rotate_cube('x')
+    #c.rotate_face('B')
+
 def parse_face_movement(movement):
     assert len(movement) == 1 or (len(movement) == 2 and movement[1] == "'")
     face = movement[0].lower()
@@ -147,6 +158,7 @@ class Cube:
     def __init__(self):
         self.movement_callback = None
         self.movement_history = []
+        self.movement_history_pointer = -1
         self.reset(should_callback=False)
         self.filename = None
 
@@ -164,27 +176,17 @@ class Cube:
         if should_callback:
             self.call_movement_callback()
 
-    def rotate_face(self, movement, should_store_in_history=True):
-        face_movement = parse_face_movement(movement)
-        return self.rotate_face_(face_movement, should_store_in_history)
-
-    def rotate_face_(self, face_movement, should_store_in_history=True):
-        rotated_cubelets = apply_face_rotation(self.cubelets, face_movement)
-        self.cubelets = rotated_cubelets
+    def rotate_face(self, movement_str, should_store_in_history=True):
+        face_movement = parse_face_movement(movement_str)
         if should_store_in_history:
-            self.movement_history.append(face_movement)
-        self.call_movement_callback()
+            self._append_movement(face_movement)
+        self._apply_movement(face_movement)
 
     def rotate_cube(self, axis, is_ccw=False, should_store_in_history=True):
         cube_movement = parse_cube_movement(axis)
-        return self.rotate_cube_(cube_movement, should_store_in_history)
-
-    def rotate_cube_(self, cube_movement, should_store_in_history):
-        rotated_cubelets = apply_cube_rotation(self.cubelets, cube_movement)
-        self.cubelets = rotated_cubelets
         if should_store_in_history:
-            self.movement_history.append(cube_movement)
-        self.call_movement_callback()
+            self._append_movement(cube_movement)
+        self._apply_movement(cube_movement)
 
     def shuffle(self):
         n_moves = 20
@@ -193,22 +195,21 @@ class Cube:
         for move_elements in zip(faces, primes):
             self.rotate_face(''.join(move_elements))
 
-    def undo_movement(self):
-        if len(self.movement_history) < 1:
+    def set_movement_history_pointer(self, pointer):
+        if not -1 <= pointer < len(self.movement_history):
+            raise ValueError(
+                "pointer must be -1 or lie within movement_history's valid range"
+            )
+        if pointer == self.movement_history_pointer:
             return
-        last_movement = self.movement_history.pop()
-        assert type(last_movement) in [CubeMovement, FaceMovement]
-        if isinstance(last_movement, FaceMovement):
-            self.rotate_face_(FaceMovement(face=last_movement.face,
-                                           is_prime=not last_movement.is_prime),
-                              should_store_in_history=False)
-        elif isinstance(last_movement, CubeMovement):
-            self.rotate_cube_(CubeMovement(axis=last_movement.axis),
-                              should_store_in_history=False)
-            self.rotate_cube_(CubeMovement(axis=last_movement.axis),
-                              should_store_in_history=False)
-            self.rotate_cube_(CubeMovement(axis=last_movement.axis),
-                              should_store_in_history=False)
+        direction = 1 if (pointer - self.movement_history_pointer) > 0 else -1
+        while pointer != self.movement_history_pointer:
+            current_movement = self.movement_history[self.movement_history_pointer]
+            if direction > 0:
+                self._apply_movement(current_movement)
+            else:
+                self._unapply_movement(current_movement)
+            self.movement_history_pointer += direction
 
     def call_movement_callback(self):
         if self.movement_callback:
@@ -216,3 +217,44 @@ class Cube:
 
     def set_movement_callback(self, movement_callback):
         self.movement_callback = movement_callback
+
+    def _append_movement(self, movement):
+        self.movement_history = self.movement_history[0:self.movement_history_pointer + 1]
+        self.movement_history.append(movement)
+        self.movement_history_pointer += 1
+
+    def _remove_current_movement(self):
+        if self.movement_history_pointer < 0:
+            return
+        self.movement_history = self.movement_history[0:self.movement_history_pointer + 1]
+        self.movement_history_pointer -= 1
+
+    def _apply_movement(self, movement):
+        if isinstance(movement, FaceMovement):
+            self._rotate_face(movement)
+        elif isinstance(movement, CubeMovement):
+            self._rotate_cube(movement)
+        else:
+            raise ValueError(f'Unknown movement type: {type(movement)}')
+
+    def _unapply_movement(self, movement):
+        if isinstance(movement, FaceMovement):
+            inverted_movement = FaceMovement(face=movement.face,
+                                             is_prime=not movement.is_prime)
+            self._apply_movement(inverted_movement)
+        else:
+            for _ in range(0, 3):
+                self._apply_movement(movement)
+
+    def _rotate_face(self, face_movement):
+        rotated_cubelets = apply_face_rotation(self.cubelets, face_movement)
+        self.cubelets = rotated_cubelets
+        self.call_movement_callback()
+
+    def _rotate_cube(self, cube_movement):
+        rotated_cubelets = apply_cube_rotation(self.cubelets, cube_movement)
+        self.cubelets = rotated_cubelets
+        self.call_movement_callback()
+
+if __name__ == '__main__':
+    debug_init()
