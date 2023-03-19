@@ -2,6 +2,40 @@ from tkinter import *
 from tkinter import ttk
 from painter import CubePainter
 
+class MovementViewer(Toplevel):
+
+    def __init__(self, parent_window, parent_element, cube):
+        super().__init__(parent_element)
+        self.cube = cube
+        self.geometry("200x300")
+        Label(self, text="This is my new window").pack()
+        listbox = Listbox(self, font='Consolas, 14')
+        self.listbox = listbox
+        listbox.pack()
+        listbox.bind('<<ListboxSelect>>', lambda e: self.onlistselect(e))
+        self.insert_movements_in_list()
+        self.movement_callback = lambda: self.insert_movements_in_list()
+        self.cube.add_movement_callback(self.movement_callback)
+        self.protocol('WM_DELETE_WINDOW', self.destroy)
+
+    def destroy(self):
+        self.cube.remove_movement_callback(self.movement_callback)
+        super().destroy()
+
+    def insert_movements_in_list(self):
+        self.listbox.delete(0, END)
+        self.listbox.insert(0, '--initial--')
+        for (i, m) in enumerate(self.cube.movement_history, start=1):
+            self.listbox.insert(i, str(m))
+        print(f'movement_history_pointer = {self.cube.movement_history_pointer}')
+        self.listbox.selection_set(self.cube.movement_history_pointer + 1)
+
+    def onlistselect(self, evt):
+        w = evt.widget
+        s = w.curselection()
+        print(f'MovementViewer.onlistselect({s[0]=})')
+        self.cube.set_movement_history_pointer(s[0] - 1)
+
 class View():
 
     def __init__(self, cube, controller):
@@ -86,6 +120,17 @@ class View():
             text='OPEN...',
             command=lambda: self.controller.open_game(),
         ).grid(column=1, row=3)
+        ttk.Button(
+            self.commands_frm,
+            text='MOVES...',
+            command=self.open_new_window,
+        ).grid(column=1, row=4)
+
+    def test_call_back(self):
+        print('The button has called back the main class')
+
+    def open_new_window(self):
+        movement_window = MovementViewer(self, self.root, self.cube)
 
     def create_cube_rotation_button(self, text, axis, **grid_args):
         ttk.Button(

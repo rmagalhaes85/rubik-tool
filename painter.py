@@ -93,7 +93,8 @@ class CubePainter:
     def __init__(self, cube, canvas):
         self.canvas = canvas
         self.cube = cube
-        cube.set_movement_callback(lambda: self.render())
+        self.render_fn = lambda: self.render()
+        cube.add_movement_callback(self.render_fn)
 
     def render(self):
         self.render_qcube()
