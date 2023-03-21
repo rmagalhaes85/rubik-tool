@@ -175,6 +175,7 @@ class Cube:
     def reset(self, should_callback=True):
         self.initialize_cubelets()
         self.movement_history.clear()
+        self.movement_history_pointer = -1
         if should_callback:
             self.call_movement_callbacks()
 
@@ -198,7 +199,6 @@ class Cube:
             self.rotate_face(''.join(move_elements))
 
     def set_movement_history_pointer(self, pointer):
-        print(f'cube.set_movement_history_pointer({pointer=})')
         if not -1 <= pointer < len(self.movement_history):
             raise ValueError(
                 "pointer must be -1 or lie within movement_history's valid range"
@@ -207,16 +207,16 @@ class Cube:
             return
         direction = 1 if (pointer - self.movement_history_pointer) > 0 else -1
         while pointer != self.movement_history_pointer:
-            current_movement = self.movement_history[self.movement_history_pointer]
             if direction > 0:
-                self._apply_movement(current_movement, should_callback=False)
+                next_movement = self.movement_history[self.movement_history_pointer + 1]
+                self._apply_movement(next_movement, should_callback=False)
             else:
+                current_movement = self.movement_history[self.movement_history_pointer]
                 self._unapply_movement(current_movement, should_callback=False)
             self.movement_history_pointer += direction
         self.call_movement_callbacks()
 
     def call_movement_callbacks(self):
-        print('cube.call_movement_callbacks')
         [c() for c in self.movement_callbacks]
 
     def add_movement_callback(self, movement_callback):
@@ -249,9 +249,11 @@ class Cube:
             inverted_movement = FaceMovement(face=movement.face,
                                              is_prime=not movement.is_prime)
             self._apply_movement(inverted_movement, should_callback)
-        else:
+        elif isinstance(movement, CubeMovement):
             for _ in range(0, 3):
                 self._apply_movement(movement, should_callback)
+        else:
+            raise ValueError(f'Unknown movement type: {type(movement)}')
 
     def _rotate_face(self, face_movement, should_callback=True):
         rotated_cubelets = apply_face_rotation(self.cubelets, face_movement)

@@ -27,13 +27,11 @@ class MovementViewer(Toplevel):
         self.listbox.insert(0, '--initial--')
         for (i, m) in enumerate(self.cube.movement_history, start=1):
             self.listbox.insert(i, str(m))
-        print(f'movement_history_pointer = {self.cube.movement_history_pointer}')
         self.listbox.selection_set(self.cube.movement_history_pointer + 1)
 
     def onlistselect(self, evt):
         w = evt.widget
         s = w.curselection()
-        print(f'MovementViewer.onlistselect({s[0]=})')
         self.cube.set_movement_history_pointer(s[0] - 1)
 
 class View():
