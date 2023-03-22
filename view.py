@@ -57,6 +57,7 @@ class View():
         root = Tk()
         root.title('Rubik Tool')
         root.resizable(0, 0)
+        root.bind('<KeyPress>', lambda ev: self.handle_keypress(ev))
         frm = ttk.Frame(root, padding=10)
         frm.grid()
         canvas = Canvas(frm, width=200, height=240)
@@ -102,6 +103,14 @@ class View():
             text=text,
             command=lambda: self.controller.rotate_cube_face(face)
         ).grid(**grid_args)
+
+    def handle_keypress(self, event):
+        char = event.char.lower()
+        if char in ['f', 'b', 'd', 'u', 'l', 'r']:
+            is_prime = event.state & 1 # check if shift is pressed
+            self.controller.rotate_cube_face(char + ('\'' if is_prime else ''))
+        elif char in ['x', 'y', 'z']:
+            self.controller.rotate_cube(char)
 
     def create_cube_rotation_buttons(self):
         self.create_cube_rotation_button("X", 'x', column=0, row=1)
