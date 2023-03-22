@@ -1,3 +1,4 @@
+from copy import deepcopy
 from tkinter import *
 from tkinter import ttk
 from painter import CubePainter
@@ -7,14 +8,16 @@ class MovementViewer(Toplevel):
     def __init__(self, parent_window, parent_element, cube):
         super().__init__(parent_element)
         self.cube = cube
+        self.internal_movement_history = []
         self.geometry("200x300")
         Label(self, text="This is my new window").pack()
         listbox = Listbox(self, font='Consolas, 14')
+        listbox.insert(0, '--initial--')
         self.listbox = listbox
         listbox.pack()
         listbox.bind('<<ListboxSelect>>', lambda e: self.onlistselect(e))
-        self.insert_movements_in_list()
-        self.movement_callback = lambda: self.insert_movements_in_list()
+        self.update_movements_in_list()
+        self.movement_callback = lambda: self.update_movements_in_list()
         self.cube.add_movement_callback(self.movement_callback)
         self.protocol('WM_DELETE_WINDOW', self.destroy)
 
@@ -22,12 +25,25 @@ class MovementViewer(Toplevel):
         self.cube.remove_movement_callback(self.movement_callback)
         super().destroy()
 
-    def insert_movements_in_list(self):
-        self.listbox.delete(0, END)
-        self.listbox.insert(0, '--initial--')
-        for (i, m) in enumerate(self.cube.movement_history, start=1):
-            self.listbox.insert(i, str(m))
+    def update_movements_in_list(self):
+        internal_history_len = len(self.internal_movement_history)
+        cube_history_len = len(self.cube.movement_history)
+        for i in range(1, max(internal_history_len, cube_history_len) + 1):
+            if i > internal_history_len:
+                self.listbox.insert(i, str(self.cube.movement_history[i - 1]))
+                continue
+            elif i > cube_history_len:
+                self.listbox.delete(i, END)
+                break
+            # in case there's a difference between cube and internal movements,
+            # update the one in the listbox
+            cube_movement_str = str(self.cube.movement_history[i - 1])
+            if str(self.internal_movement_history[i - 1]) != cube_movement_str:
+                self.listbox.delete(i, i)
+                self.listbox.insert(i, cube_movement_str)
+        self.listbox.selection_clear(0, END)
         self.listbox.selection_set(self.cube.movement_history_pointer + 1)
+        self.internal_movement_history = deepcopy(self.cube.movement_history)
 
     def onlistselect(self, evt):
         w = evt.widget
@@ -123,9 +139,6 @@ class View():
             text='MOVES...',
             command=self.open_new_window,
         ).grid(column=1, row=4)
-
-    def test_call_back(self):
-        print('The button has called back the main class')
 
     def open_new_window(self):
         movement_window = MovementViewer(self, self.root, self.cube)
