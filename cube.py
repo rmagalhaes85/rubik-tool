@@ -139,7 +139,7 @@ def apply_cube_rotation(cubelets, movement):
             front=cubelets.right,
             back=cubelets.left,
             up=''.join((u6, u7, u0, u1, u2, u3, u4, u5, u8)),
-            down=''.join((d6, d7, d0, d1, d2, d3, d4, d5, d8)),
+            down=''.join((d2, d3, d4, d5, d6, d7, d0, d1, d8)),
             left=cubelets.front,
             right=cubelets.back,
         )
