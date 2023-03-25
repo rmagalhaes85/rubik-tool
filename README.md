@@ -9,6 +9,10 @@ A Rubik's Cube simulator
 
 - allows to save and load games
 
+- cube renderization based on the one used here: http://mzrg.com/js/qcube-v2.html
+  (although this program is based on a different, way simpler theory of operation. Refer
+  to the section on "Limitations" for details)
+
 ## Running
 
 Clone this repository and run
